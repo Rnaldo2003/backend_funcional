@@ -12,7 +12,7 @@ app.get('/about', (req, res) => {
     res.send('About Page');
   
 });
-const db=require('./models');
+const db=require('./src/models');
 db.sequelize.sync()
  .then(() => {
   console.log('Base de datos sincronizada correctamente');

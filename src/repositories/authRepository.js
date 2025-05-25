@@ -1,48 +1,51 @@
-const db=require('./models');
+const db=require('../models');
 const Users=db.Users;
 
 const getAllUsers=async()=>{
     try{
-        const users=await Users.findAll();
-        {
-             ['id', 'FirstName', 'email','status', 'dod', 'profile_picture' ]
-        }
+        const users=await Users.findAll(
+            {
+                attributes: ['id', 'firstName', 'lastName', 'email','status', 'dob', 'profile_picture']
+            }
+        );        
         return users;
+
     }catch(error){
-        console.error(error);
-        return [];
+        console.log('error in getAllUsers',err.message);
+        throw err
     }
 
 }
 
 const getUserById = async (id) => {
   try {
-    const user = await Users.findByPk(id); // Corrige aquí
+    const user = await Users.findByPk(id, {attributes: ['id', 'firstName', 'lastName', 'email','status', 'dob', 'profile_picture']
+    });
     return user;
   } catch (error) {
-    console.error('Error al obtener el usuario:', error);
-    return null;  // Devuelve null en caso de error
+    console.log('Error al obtener el usuario:', err.message);
+     throw err
   }
 };
 
-const createUser=async(userObj)=>{
+const createUser=async(userData)=>{
     try{
-        const newUser=await Users.create(userData);
+        const user=await Users.create(userData);
         return user;
     }catch(error){
-        console.log('error al crear el usuario', error.message);
+        console.log('error al crear el usuario', err.message);
         throw error;
     }
 }
 
-const updateUser=async(id, userObj)=>{
+const updateUser=async(id, userData)=>{
     try{
         const user=await Users.updateUser(userData, {where: {id}});
         return user;
         
         
     }catch(error){
-        console.error('error al actualizar el usuario', error.message);
+        console.log('error al actualizar el usuario', err.message);
         throw error;
        
     }
@@ -50,47 +53,45 @@ const updateUser=async(id, userObj)=>{
 
 const deleteUser = async (id) => {
   try {
-    const user = await Users.destroy({
-      where: { id }
-    });
-    
-    if (user === 0) {
-      // Si no se eliminó ningún usuario, esto puede significar que no se encontró el usuario con el ID proporcionado
-      throw new Error('Usuario no encontrado');
-    }
+    const user = await Users.destroy({where: { id }});
+      return user
+    }catch (error) { 
+        console.log('Error al eliminar el usuario:', err.message);
+        throw err;
 
-    return user;
-  } catch (error) {
-    console.error('Error al eliminar el usuario:', error.message);
-    throw error;
-  }
-};
+    }
+}
 
 
 const login=async(email)=>{
     try{ const  user=await Users.findOne({where: {email}});
-        return user;}
-        catch(error){
-        console.error('error al iniciar sesión', error.message);
-        throw error;
+        return user
+
+    } catch(error){
+        console.log('error al iniciar sesión', err.message);
+        throw err;
     }
 }
-const cambiarFoto=async(id, id)=>{
+const cambiarfoto=async(data, id)=>{
     try{
         const user=await Users.update({data,}, {where: {id}});
         return user;
     }catch(error){
-        console.error('error al cambiar la foto', error.message);
-        throw error;
+        console.log('error al cambiar la foto', err.message);
+        throw err;
     }
 }
-const cambiarClave=async(data, id)=>{
+const cambiarclave=async(data, id)=>{
     try{
         const user=await Users.update({data,}, {where: {id}});
         return user;
     }catch(error){
-        console.error('error al cambiar la clave', error.message);
-        throw error;
+        console.err('error al cambiar la clave', err.message);
+        throw err
     }
 }
-module.exports={getAllUsers, getUserById, createUser, updateUser, deleteUser, login, cambiarFoto, cambiarClave};
+
+module.exports={getAllUsers, getUserById, createUser, updateUser, deleteUser, login, cambiarfoto, cambiarclave}
+
+
+
