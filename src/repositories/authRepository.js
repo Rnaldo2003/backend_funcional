@@ -1,97 +1,120 @@
 const db=require('../models');
-const Users=db.Users;
+const User = db.User;
 
-const getAllUsers=async()=>{
-    try{
-        const users=await Users.findAll(
-            {
-                attributes: ['id', 'firstName', 'lastName', 'email','status', 'dob', 'profile_picture']
-            }
-        );        
-        return users;
-
-    }catch(error){
-        console.log('error in getAllUsers',err.message);
-        throw err
-    }
-
+const getAllUsers = async () => {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 
+        'firstName', 
+        'lastName', 
+        'email', 
+        'status', 
+        'dob',
+        'profile_picture']}
+    );
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
 }
 
 const getUserById = async (id) => {
   try {
-    const user = await Users.findByPk(id, {attributes: ['id', 'firstName', 'lastName', 'email','status', 'dob', 'profile_picture']
+    const user = await User.findByPk(id, {
+      attributes: ['id', 
+        'firstName', 
+        'lastName', 
+        'email', 
+        'status', 
+        'dob',
+        'profile_picture']
     });
     return user;
   } catch (error) {
-    console.log('Error al obtener el usuario:', err.message);
-     throw err
+    console.error('Error fetching user by ID:', error);
+    throw error;
   }
-};
-
-const createUser=async(userData)=>{
-    try{
-        const user=await Users.create(userData);
-        return user;
-    }catch(error){
-        console.log('error al crear el usuario', err.message);
-        throw error;
-    }
 }
 
-const updateUser=async(id, userData)=>{
-    try{
-        const user=await Users.updateUser(userData, {where: {id}});
-        return user;
-        
-        
-    }catch(error){
-        console.log('error al actualizar el usuario', err.message);
-        throw error;
-       
-    }
+const createUser = async (userData) => {
+  try {
+    const user = await User.create(userData);
+    return user;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
+}
+
+const updateUser = async (id, userData) => {
+  try {
+    const user = await User.update(userData, {
+      where: { id }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
 }
 
 const deleteUser = async (id) => {
   try {
-    const user = await Users.destroy({where: { id }});
-      return user
-    }catch (error) { 
-        console.log('Error al eliminar el usuario:', err.message);
-        throw err;
-
-    }
+    const user = await User.destroy({
+      where: { id }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error;
+  }
 }
 
-
-const login=async(email)=>{
-    try{ const  user=await Users.findOne({where: {email}});
-        return user
-
-    } catch(error){
-        console.log('error al iniciar sesión', err.message);
-        throw err;
-    }
-}
-const cambiarfoto=async(data, id)=>{
-    try{
-        const user=await Users.update({data,}, {where: {id}});
-        return user;
-    }catch(error){
-        console.log('error al cambiar la foto', err.message);
-        throw err;
-    }
-}
-const cambiarclave=async(data, id)=>{
-    try{
-        const user=await Users.update({data,}, {where: {id}});
-        return user;
-    }catch(error){
-        console.err('error al cambiar la clave', err.message);
-        throw err
-    }
+const login = async (email) => {
+  try {
+    const user = await User.findOne({
+      where: { email }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error logging in:', error);
+    throw error;
+  }
 }
 
-module.exports={getAllUsers, getUserById, createUser, updateUser, deleteUser, login, cambiarfoto, cambiarclave}
+const cambiarFoto = async (data, id) => {
+  try {
+    const user = await User.update(data, {
+      where: { id }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error updating user photo:', error);
+    throw error;
+  }
+}
 
+const cambiarClave = async (data, id) => {
+  try {
+    const user = await User.update(data, {
+      where: { id }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error updating user password:', error);
+    throw error;
+  }
+}
 
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  login,
+  cambiarFoto,
+  cambiarClave
+}
 

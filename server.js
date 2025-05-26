@@ -1,27 +1,27 @@
 const express = require('express');
+
 const app = express();
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001;
 
-app.get('/', (req, res) => { 
-    res.send('Hello, World!');
-  });
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+})
 
-app.get('/about', (req, res) => { 
-    res.send('About Page');
-  
-});
-const db=require('./src/models');
+app.get('/about', (req, res) => {
+    res.send('About Us');
+})
+
+const db = require('./src/models');
 db.sequelize.sync()
- .then(() => {
-  console.log('Base de datos sincronizada correctamente');
-    
+  .then(() => {
+    console.log('Database synchronized successfully.');
   })
-  .catch(err => {
-    console.error('Error al sincronizar base de datos:', err.message);
+  .catch((error) => {
+    console.error('Error synchronizing database: ', error);
   });
 
-  app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+})
