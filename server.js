@@ -15,20 +15,31 @@ const { User, Estudiante } = db;
 app.use(express.json());
 app.use(cors());
 
-// Configuración de Multer
+// Configuración de multer para guardar en /uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage: storage });
 
+// Endpoint para subir imagen
+app.post('/upload', upload.single('imagen'), (req, res) => {
+  console.log('Petición recibida en /upload');
+  if (!req.file) {
+    console.log('No se subió ninguna imagen');
+    return res.status(400).json({ error: 'No se subió ninguna imagen' });
+  }
+  const url = `http://localhost:3000/uploads/${req.file.filename}`;
+  console.log('Imagen subida:', url);
+  res.json({ url });
+});
+
 // Servir archivos estáticos de la carpeta uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
@@ -48,10 +59,20 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// Ruta para crear un nuevo usuario
+// Crear usuario
 app.post('/users', async (req, res) => {
   try {
-    const user = await User.create(req.body);
+    const { firstName, lastName, email, password, status, dob, profile_picture, rol } = req.body;
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      status,
+      dob,
+      profile_picture,
+      rol // <-- asegúrate de guardar este campo
+    });
     res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ error: 'Error al crear usuario', details: error.message });
@@ -124,16 +145,6 @@ app.put('/estudiantes/:id', async (req, res) => {
   }
 });
 
-// Endpoint para subir imágenes
-app.post('/upload', upload.single('imagen'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No se subió ninguna imagen' });
-  }
-  // Devuelve la URL de la imagen subida
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-  res.json({ url: imageUrl });
-});
-
 // Ruta de login
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -161,10 +172,33 @@ app.post('/login', async (req, res) => {
       id: user.id,
       nombre: user.firstName + ' ' + user.lastName,
       email: user.email,
-      rol: user.rol || 'estudiante'
+      rol: user.rol || 'estudiante',
+      profile_picture: user.profile_picture // <-- AGREGAR ESTA LÍNEA
     });
   } catch (error) {
     res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Actualizar usuario por id
+app.put('/users/:id', async (req, res) => {
+  try {
+    const { firstName, lastName, email, status, dob, profile_picture, rol } = req.body;
+    const usuario = await User.findByPk(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    usuario.firstName = firstName;
+    usuario.lastName = lastName;
+    usuario.email = email;
+    usuario.status = status;
+    usuario.dob = dob;
+    usuario.profile_picture = profile_picture;
+    usuario.rol = rol;
+    await usuario.save();
+
+    res.json(usuario);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar usuario' });
   }
 });
 
